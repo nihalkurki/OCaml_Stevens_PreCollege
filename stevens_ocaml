@@ -1,0 +1,563 @@
+(* 
+   recursion on numbers and lists 
+   23 July 2019
+*)
+
+
+(* ****************** *)
+(* recursion on numbers *)
+(* ****************** *)
+
+(* add first n numbers *)
+let rec my_sum (n:int) : int = 
+  match n with
+  | 0 -> 0
+  | n -> my_sum (n-1) + n
+
+(* compute factorial of a number *)
+let rec fact (n:int) : int =
+  match n with
+  | 0 -> 1
+  | n -> fact (n-1) * n
+
+(* ****************** *)
+(* recursion on lists *)
+(* ****************** *)
+
+(* length of a list *)
+let rec length (l:'a list) : int =
+  match l with
+  | [] -> 0
+  | h::t -> 1 + length t
+
+(* sum of all the numbers in a list *)
+let rec sum (l:int list) : int =
+  match l with
+  | [] -> 0
+  | h::t -> h + sum t
+
+(* product of all the numbers in a list *)
+let rec prod (l:int list) : int =
+  match l with
+  | [] -> 1
+  | h::t -> h * prod t
+              
+(* sum of all the positive numbers in a list *)
+let rec sum_positive (l:int list) : int =
+  match l with
+  | [] -> 0
+  | h::t ->
+    if h>0
+    then h + sum_positive t
+    else sum_positive t
+
+(* variation of previous exercise using when clauses *)
+let rec sum_positive' l =
+  match l with
+  | [] -> 0
+  | h::t when h>0 -> h + sum_positive t
+  | h::t -> sum_positive t
+
+(* add 1 to each number in a list of numbers *)
+let rec bump l =
+  match l with
+  | [] -> []
+  | h::t -> (h+1) :: bump t
+
+
+(* duplicate each item in a list *)
+let rec stutter l =
+  match l with
+  | [] -> []
+  | h::t -> h::h::stutter t
+
+
+  (* remove all adjacent items in a list that are identical *)
+  
+(*
+let rec remove_adjacent l =
+  match l with
+  | [] -> []
+  | [h] -> ???
+  | h1::h2::t -> ???
+*)    
+
+(* More exercises on recursion *)
+
+
+let rec mem (e:'a) (l:'a list) : bool =
+  match l with
+  | [] -> false
+  | h::t ->
+    if e=h
+    then true
+    else mem e t
+
+let rec mem' (e:'a) (l:'a list) : bool =
+  match l with
+  | [] -> false
+  | h::t when e=h -> true
+  | h::t -> mem' e t
+
+let rec mem'' (e:'a) (l:'a list) : bool =
+  match l with
+  | [] -> false
+  | h::t -> h=e || mem'' e t
+
+let rec has_dupl (l:'a list) : bool =
+  match l with
+  | [] -> false
+  | h::t when mem h t -> true
+  | h::t -> has_dupl t
+
+let rec has_dupl' (l:'a list) : bool =
+  match l with
+  | [] -> false
+  | h::t -> mem h t || has_dupl' t 
+
+let rec remove_dupl (l:'a list) : 'a list =
+  match l with
+  | [] -> []
+  | h::t ->
+    if mem h t
+    then remove_dupl t
+    else h::remove_dupl t
+
+let rec remove_dupl' (l:'a list) : 'a list =
+  match l with
+  | [] -> []
+  | h::t when mem h t-> remove_dupl t
+  | h::t -> h::remove_dupl t
+
+let rec take (n:int) (l:'a list) : 'a list =
+  match l with
+  | [] -> []
+  | h::t ->
+    if n=0
+    then []
+    else h::take (n-1) t
+
+let rec take' (n:int) (l:'a list) : 'a list =
+  match (n,l) with
+  | 0,l -> []
+  | n,[] -> []
+  | n,h::t -> h::take' (n-1) t   (* n>0 *)
+
+let rec drop (n:int) (l:'a list) : 'a list =
+  match (n,l) with
+  | 0,l -> l
+  | n,[] -> []
+  | n,h::t -> drop (n-1) t
+
+let split (n:int) (l:'a list) : ('a list * 'a list) =
+  (take n l, drop n l)
+
+
+let rec flatten (l:'a list list) : 'a list =
+  match l with
+  | [] -> []
+  | h::t -> h @ flatten t
+
+let rec add_h_to (e:'a) (l:'a list list) : 'a list list =
+  match l with
+  | [] -> []
+  | h::t -> (e::h) :: add_h_to e t
+              
+let rec sublists (l:'a list) : 'a list list =
+  match l with
+  | [] ->  [[]]
+  | h::t ->
+    let sub_of_tail = sublists t
+    in sub_of_tail @ add_h_to h sub_of_tail
+
+
+let successor i = i+1
+let upper c = Char.uppercase_ascii c
+let is_zero i = (i=0)
+                
+let rec succl (l:int list) : int list =
+  match l with
+  | [] -> []
+  | h::t -> successor h :: succl t 
+    
+let rec to_upperl (l:char list) : char list = 
+  match l with
+  | [] -> []
+  | h::t -> upper h :: to_upperl t 
+
+let rec are_zeros (l:int list) : bool list =
+  match l with
+  | [] -> []
+  | h::t -> is_zero h :: are_zeros t
+
+let rec map (f: 'a -> 'b) (l:'a list) : 'b list =
+  match l with
+  | [] -> []
+  | h::t -> f h :: map f t
+
+let succl'= map successor
+let to_upperl' = map upper
+let are_zeros' = map is_zero
+    
+    (* motivating filter *)
+
+let is_positive i = i>0
+let is_uppercase c = c = Char.uppercase_ascii c
+let is_nonempty l = l!=[]
+                       
+let rec greater_than_zero (l:int list) : int list =
+  match l with
+  | [] -> []
+  | h::t ->
+    if is_positive h
+    then h :: greater_than_zero t
+    else greater_than_zero t
+
+let rec uppercase (l:char list) : char list =
+  match l with
+  | [] -> []
+  | h::t ->
+    if is_uppercase h
+    then h:: uppercase t
+    else uppercase t
+    
+let rec non_empty (l:'a list list) :'a list list =
+  match l with
+  | [] -> []
+  | h::t ->
+    if is_nonempty h
+    then h :: non_empty t
+    else non_empty t
+
+let rec filter (p:'a -> bool) (l:'a list) : 'a list =
+  match l with
+  | [] -> []
+  | h::t ->
+    if p h
+    then h:: filter p t
+    else filter p t
+
+let greater_than_zero' = filter is_positive
+let uppercase'  = filter is_uppercase
+let non_empty' = filter is_nonempty
+    
+(* motivating fold *)
+
+let rec sum_list (l:int list) : int =
+  match l with
+  | [] -> 0
+  | h::t -> h + sum_list t
+              
+let rec and_list (l: bool list) : bool = 
+  match l with
+  | [] -> true
+  | h::t -> h && and_list t
+
+let rec flatten (l:'a list list) : 'a list =
+  match l with
+  | [] -> []
+  | h::t -> h @ flatten t
+
+let rec foldr (n:'b) (f:'a -> 'b -> 'b) (l:'a list) : 'b =
+  match l with
+  | [] -> n
+  | h::t -> f h (foldr n f t)
+
+let sum_list' = foldr 0 (+)
+let and_list' = foldr true (&&)
+let flatten'= foldr [] (@)
+    
+(* playing with maps and folds *)
+
+let letter_e = [0;2;2;3;3;5;5;4;3;5;4;3;3;5;5;1]
+
+let invert_instruction (i:int) : int =
+  match i with
+  | 0 -> 0
+  | 1 -> 1
+  | 2 -> 4
+  | 3 -> 5
+  | 4 -> 2
+  | 5 -> 3
+  | _ -> failwith "invalid instruction"
+    
+let mirror_image (p:int list) : int list = List.map invert_instruction p
+
+let rotate90_instruction i =
+  match i with
+  | 0 -> 0
+  | 1 -> 1
+  | 2 -> 3
+  | 3 -> 4
+  | 4 -> 5
+  | 5 -> 2
+  | _ -> failwith "invalid instruction"
+
+
+let rotate_90 (p:int list) : int list = List.map rotate90_instruction p
+
+let rec repeat (n:int) (e:'a) : 'a list =
+  match n with
+  | 0 -> []
+  | n -> e :: repeat (n-1) e
+
+
+let rec pantograph (n:int) (p:int list) : int list =
+  match p with
+  | [] -> []
+  | 0::t -> 0 :: pantograph n t
+  | 1::t -> 1 :: pantograph n t
+  | h::t -> repeat n h @ pantograph n t
+
+let pantograph' n p =
+      List.flatten @@ List.map (fun i -> if i=0||i=1 then [i] else repeat n i) p
+      
+let pantograph'' n p =
+    foldr [] (fun i l -> if i=0||i=1 then i::l else repeat n i @ l) p
+
+let next ((x,y): int*int) (i:int) : int*int =
+  match i with
+  | 0 -> (x,y)
+  | 1 -> (x,y)
+  | 2 -> (x,y+1)
+  | 3 -> (x+1,y)
+  | 4 -> (x,y-1)
+  | 5 -> (x-1,y)
+  | _ -> failwith "invalid instruction"
+  
+let rec coverage (coord:int*int) (p:int list) :(int*int) list =
+  match p with
+  | [] -> [coord]
+  | h::t -> coord :: coverage (next coord h) t
+
+let rec compress (r:int) (p:int list) : (int*int) list =
+  match p with
+  | [] -> []
+  | [i] -> [(i,r+1)]
+  | h1::h2::t -> 
+    if h1=h2
+    then compress (r+1) (h2::t)
+    else (h1,r+1) :: compress 0 (h2::t)
+
+let rec compress' (r:int) (p:int list) : (int*int) list =
+  match p with
+  | [] -> []
+  | [i] -> [(i,r+1)]
+  | h1::h2::t when h1=h2 -> compress' (r+1) (h2::t)
+  | h1::h2::t  -> (h1,r+1) :: compress' 0 (h2::t)
+
+let uncompress (l:(int*int) list) : int list =
+  List.flatten @@ List.map  (fun (i,r) -> repeat r i) l
+
+
+(* records *)
+
+type student = {cwid:int; name:string; age:int; follows:int list}
+
+let school =
+  [
+    {cwid = 2; name = "Anne"; age = 21; follows = [1;3;5;7]};
+    {cwid = 4; name = "Sue"; age = 23; follows = [5;6;7]};
+    {cwid = 1; name = "Tom"; age = 20; follows = [2;4]};
+    {cwid = 5; name = "Costas"; age = 24; follows = [1;7]};
+    {cwid = 6; name = "Brian"; age = 25; follows = [3;4;5]};
+    {cwid = 3; name = "Anthony"; age = 22; follows = [1;2]};
+    {cwid = 7; name = "Dante"; age = 26; follows = [1;4;5;7]}
+  ]
+
+let rec find_student (ls:student list) (cwid:int) : student =
+  match ls with
+  | [] -> failwith "find_student: Student not found"
+  | h::t when h.cwid = cwid -> h
+  | h::t -> find_student t cwid
+              
+let follows (ls:student list) (cwid:int) : string list =
+     let cwid_follows = (find_student ls cwid).follows
+     in List.map (fun i -> (find_student ls i).name) cwid_follows
+
+let rec number_of_followers (ls:student list) (cwid:int) : int =
+  match ls with
+  | [] -> 0
+  | h::t when List.mem cwid h.follows -> 1 + number_of_followers t cwid
+  | h::t -> number_of_followers t cwid
+
+let number_of_followers' (ls:student list) (cwid:int) : int =
+    sum (List.map (fun s -> if List.mem cwid s.follows then 1 else 0) ls)
+
+let followers (ls:student list) : (string*int) list =
+    List.map  (fun s -> (s.name, number_of_followers ls s.cwid))  ls 
+  
+let rec max_list_of_followers (l:(string*int) list) (n:int) : int =
+  match l with
+  | [] -> n
+  | (name,foll)::t when foll>n -> max_list_of_followers t foll
+  | (name,foll)::t  -> max_list_of_followers t n
+                                                                        
+let rec max_list_of_followers' (l:(string*int) list)  : int =
+  match l with
+  | [] -> -1
+  | (name,foll)::t -> max foll (max_list_of_followers' t) 
+
+let rec most_followed (ls:student list) : (string*int) list =
+  let student_follow_pairs = followers ls
+  in let max = max_list_of_followers' student_follow_pairs 
+  in List.filter (fun (name,f) -> f=max) student_follow_pairs
+    
+(* algebraic data types *)
+
+type color = Red | Green | Blue
+
+let next c =
+  match c with
+  | Red -> Green
+  | Green -> Blue
+  | Blue -> Red
+
+
+type rgbcolor = RGB of int*int*int
+
+let red = RGB(255,0,0)
+
+let more_red (c:rgbcolor) : rgbcolor =
+  match c with
+  | RGB(r,g,b) -> RGB (r+1,g,b)
+
+let more_red' (RGB(r,g,b):rgbcolor) : rgbcolor = RGB (r+1,g,b)
+
+let red_filter (c:rgbcolor) : rgbcolor =
+  match c with
+  | RGB(_,g,b) -> RGB(0,g,b)
+
+let is_valid (c:rgbcolor) : bool =
+  match c with
+  | RGB(r,g,b) ->  r>=0 && r<256 && g>=0 && g<256 && b>=0 && b<256
+
+
+type tree = Empty | Node of int*tree*tree
+
+let t = Node(14,
+             Node(7,Empty,Empty),
+             Node(24,
+                  Node(22,Empty,Empty),
+                  Empty))
+
+let rec size_t t =
+  match t with
+  | Empty -> 0
+  | Node(i,lt,rt) -> 1 + size_t lt + size_t rt
+
+let rec sum_t t =
+  match t with
+  | Empty -> 0
+  | Node(i,lt,rt) -> i + sum_t lt + sum_t rt
+
+let rec bump_t t =
+  match t with
+  | Empty -> Empty
+  | Node(i,lt,rt) -> Node(i+1, bump_t lt, bump_t rt)
+
+let rec flip_t t =
+  match t with
+  | Empty -> Empty
+  | Node(i,lt,rt) -> Node(i,flip_t rt,flip_t lt)
+    
+let is_empty t =
+  match t with
+  | Empty -> true
+  | _ -> false
+
+let is_leaf t =
+  match t with
+  | Node(i,Empty,Empty) -> true
+  | _ -> false
+
+let left_subtree t =
+  match t with
+  | Empty -> failwith "Error: no left subtree"
+  | Node(i,lt,rt) -> lt
+
+let right_subtree t =
+  match t with
+  | Empty -> failwith "Error: no subtree"
+  | Node(i,lt,rt) -> rt
+
+
+ type 'a result = None | Some of 'a 
+
+let rec find (k:'a) (d:('a*'b) list) :'b result =
+  match d with
+  | [] -> None
+  | (k',v')::t when k'=k -> Some v'
+  | h::t -> find k t
+
+
+(* polymorphic trees *)
+              
+(* type 'a btree = *)
+
+
+let process_test_case (l: int list) : unit = 
+  List.iter print_int l
+
+(*let main () = 
+  let n = int_of_string @@ read_line ()
+  in 
+  for i = 1 to n do 
+    let tc = List.map int_of_string @@ String.split_on_char ' ' (read_line ())
+    in process_test_case tc
+  done
+
+*)
+
+(* Entry Point of the Code  *)
+(*
+let () = 
+  let n = int_of_string @@ read_line ()
+  in 
+  for i = 1 to n do 
+    let tc = List.map int_of_string @@ String.split_on_char ' ' (List.nth t (i-1))
+    in process_test_case tc
+  done
+*)
+
+let () =  
+  let n = int_of_string @@ read_line ()  
+  in  
+  for i=1 to n do    
+    let tc= List.map int_of_string @@ String.split_on_char ' ' (read_line ())    
+    in process_test_case tc  
+  done
+
+
+let input = read_line() 
+  in match input with
+  | 
+
+let () = 
+  let line1::t = read_file "test.txt"
+  in 
+  for i = 1 to int_of_string line1 do 
+    let tc = List.map int_of_string @@ String.split_on_char ' ' (read_line ())
+    in process_test_case tc
+  done
+
+let read_file filename = 
+  let lines = ref [] in
+  let chan = open_in filename in
+  try
+
+
+(*  1. How to read from standard input
+    2. How does hackerrank knhow where to start(main)
+    3. Read test cases from a text file*)
+
+
+let vb =
+  let b = {x=135; y=0; w=35;h=35; bw=2; 
+           b1_col=gray1; b2_col=gray3; b_col=gray2; r=Top}  (* individual box *)
+  in Array.of_list (create_grid 10 99 2 b)  (* array of boxes *)
+
+let vb_cpu =
+  let b = {x=685; y=0; w=35;h=35; bw=2; 
+           b1_col=gray1; b2_col=gray3; b_col=gray2; r=Top}  (* individual box *)
+  in Array.of_list (create_grid 10 99 2 b)  (* array of boxes *)
